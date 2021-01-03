@@ -5,7 +5,7 @@
   <body>
     <script type="module">
       (async() => {
-        // Some learnings here from CNLohr's rawdraw:
+        // Some learnings here from CNLohr's (very cool) rawdraw:
         // https://github.com/cntools/rawdraw/blob/master/wasm/template.js
         //
         // Other helpful resources:
@@ -27,10 +27,10 @@
         let HEAPF64 = new Float64Array(memory.buffer);
 
         let toUtf8Decoder = new TextDecoder( "utf-8" );
-
         function toUTF8(ptr) {
             // Remember, in C strings are null terminated strings.
-            // Iterate and find null
+            // Iterate and find null.
+            // This is almost directly copied from rawdraw.
             let len = 0;
             for(let i = ptr; HEAPU8[i] != 0; i++) len++;
             return toUtf8Decoder.decode(HEAPU8.subarray(ptr, ptr+len));

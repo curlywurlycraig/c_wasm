@@ -25,6 +25,14 @@ around the generated .js)
 
 `make build`
 
+Note, if you're on MacOS you need to install llvm from Homebrew. The one that
+ships with your Mac doesn't include wasm32 as a compile target. This blog post
+has more info:
+https://depth-first.com/articles/2019/10/16/compiling-c-to-webassembly-and-running-it-without-emscripten/
+
+Basically, install `llvm` with `brew install llvm` and then include the llc
+binary on your path.
+
 # Running
 
 Serve using something like Miniserve (`miniserve .`)
