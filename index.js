@@ -44,7 +44,7 @@ async function start() {
             memory,
             prints: (ptr) => console.log(ptr, toUTF8(ptr)),
             printfl: (f) => console.log(f),
-            clearGl: (r, g, b, a) => {
+            glClear: (r, g, b, a) => {
                 gl.clearColor(r, g, b, a);
                 gl.clear(gl.COLOR_BUFFER_BIT);
             }
