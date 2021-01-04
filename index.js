@@ -8,6 +8,7 @@
 async function start() {
     // init webgl
     const canvas = document.querySelector("#canvas");
+    const memoryText = document.querySelector("#memory");
 
     const gl = canvas.getContext("webgl");
     if (gl === null){
@@ -31,6 +32,7 @@ async function start() {
     let toUtf8Decoder = new TextDecoder( "utf-8" );
     function toUTF8(ptr) {
         // Remember, in C strings are null terminated strings.
+        // Argument is a pointer to the first character.
         // Iterate and find null.
         // This is almost directly copied from rawdraw.
         let len = 0;
@@ -38,7 +40,85 @@ async function start() {
         return toUtf8Decoder.decode(HEAPU8.subarray(ptr, ptr+len));
     }
 
-    // This is also how Emscripten exposes "opengl" bindings
+    function initShaderProgram(gl, vsSource, fsSource) {
+        const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+        const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+        const shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+        gl.linkProgram(shaderProgram);
+
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+            // TODO Instead of console err, use a little debug textarea
+            console.error('Unable to initialize the shader program: ', gl.getProgramInfoLog(shaderProgram));
+            return null;
+        }
+
+        return shaderProgram;
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
+    function loadShader(gl, type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+            gl.deleteShader(shader);
+            return null;
+        }
+
+        return shader;
+    }
+
+    const vsSource = `
+    attribute vec4 aVertexPosition;
+
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+
+    void main() {
+        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+    }
+    `;
+
+    const fsSource = `
+    void main() {
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+    `;
+
+    const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+
+    const glProgramInfo = {
+        shaderProgram,
+        attribLocations: {
+            vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition')
+        },
+        uniformLocations: {
+            modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+            projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix')
+        }
+    };
+
+    function initBuffers(gl) {
+        const positionBuffer = gl.createBuffer();
+
+        gl.bindBuffer(gl.ARRAY_BUFFER);
+
+        // This array will come from C, soon
+        const positions = [
+            -1.0, 1.0,
+            1.0, 1.0,
+            -1.0, -1.0,
+            1.0, -1.0
+        ];
+
+
+    }
+
     const imports = {
         env: {
             memory,
@@ -47,7 +127,7 @@ async function start() {
             glClear: (r, g, b, a) => {
                 gl.clearColor(r, g, b, a);
                 gl.clear(gl.COLOR_BUFFER_BIT);
-            }
+            },
         }
     };
 
@@ -55,6 +135,22 @@ async function start() {
         fetch('main.wasm'),
         imports
     );
+
+    setInterval(() => {
+        // set the text area contents
+        let memoryString = "";
+        HEAPU8
+            .subarray(0, 256)
+            .forEach((b, i) => {
+                const nextPiece = (i+1) % 8 == 0
+                    ? `${String(b)}\n`
+                    : `${String(b)}\t`
+
+                memoryString += nextPiece;
+            });
+
+        memoryText.value = memoryString
+    }, 50);
 
     function iter() {
         // TODO, pass time since last iteration
