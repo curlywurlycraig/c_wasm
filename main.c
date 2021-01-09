@@ -31,23 +31,18 @@ struct vec3 {
 };
 
 void iter() {
-    float *p = 0;
-    *p = col;
-
     float fcol = (float) col / 255.0f;
     setTranslation(fcol, fcol);
 
-    float* vertices = sizeof(p);
-    *(vertices) = -0.5f;
-    *(vertices+1) = -0.5f;
-    *(vertices+2) = 0.5f;
-    *(vertices+3) = -0.5f;
-    *(vertices+4) = 0.5f;
-    *(vertices+5) = 0.5f;
-    *(vertices+6) = -0.5f;
-    *(vertices+7) = 0.5f;
+    float vertices[] = {
+        -0.5f, -0.5f,
+        0.5f, -0.5f,
+        0.5f, 0.5f,
+        -0.5f, 0.5f
+    };
+
     drawVertexBuffer(vertices, 4);
 
-    col += 10;
+    col += 2;
     col = col % 255;
 }
