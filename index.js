@@ -74,23 +74,28 @@ async function start() {
     }
 
     const vsSource = `
-    attribute vec4 aVertexPosition;
+    attribute vec2 aVertexPosition;
+    uniform vec2 uTranslation;
 
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
+    // uniform mat4 uModelViewMatrix;
+    // uniform mat4 uProjectionMatrix;
 
     void main() {
-        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        //gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        gl_Position = vec4(aVertexPosition + uTranslation, 0, 1);
     }
     `;
 
     const fsSource = `
     void main() {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        gl_FragColor = vec4(0.8, 0.8, 1.0, 1.0);
     }
     `;
 
     const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+
+    const positionBuffer = gl.createBuffer();
+    gl.useProgram(shaderProgram);
 
     const glProgramInfo = {
         shaderProgram,
@@ -98,26 +103,59 @@ async function start() {
             vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition')
         },
         uniformLocations: {
-            modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-            projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix')
+            translation: gl.getUniformLocation(shaderProgram, 'uTranslation')
+            // modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+            // projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix')
+        },
+        buffers: {
+            positionBuffer
         }
     };
 
-    function initBuffers(gl) {
-        const positionBuffer = gl.createBuffer();
+    function drawVertexBuffer(verticesPtr, vertexCount) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, glProgramInfo.buffers.positionBuffer);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER);
+        // Pointer aligned to bytes. HEAPF32 indices "aligned" to 32 bits.
+        // Shift by two to find the appropriate 32 bit index
+        const startIndex = verticesPtr >> 2;
 
-        // This array will come from C, soon
-        const positions = [
-            -1.0, 1.0,
-            1.0, 1.0,
-            -1.0, -1.0,
-            1.0, -1.0
-        ];
+        // multiplication of 2 is because x and y are interpolated in the vertex array
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            HEAPF32.slice(startIndex, startIndex + vertexCount*2),
+            gl.DYNAMIC_DRAW
+        );
 
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
 
+        gl.enableVertexAttribArray(glProgramInfo.attribLocations.vertexPosition);
+
+        // x and y only
+        {
+            const size = 2;
+            const type = gl.FLOAT;
+            const normalize = false;
+            const stride = 0;
+            const offset = 0;
+
+            gl.vertexAttribPointer(
+                glProgramInfo.attribLocations.vertexPosition,
+                size,
+                type,
+                normalize,
+                stride,
+                offset
+            );
+        }
+
+        {
+            const primitiveType = gl.LINE_LOOP;
+            const offset = 0;
+            gl.drawArrays(primitiveType, offset, vertexCount);
+        }
     }
+
 
     const imports = {
         env: {
@@ -128,6 +166,13 @@ async function start() {
                 gl.clearColor(r, g, b, a);
                 gl.clear(gl.COLOR_BUFFER_BIT);
             },
+            drawVertexBuffer,
+            setTranslation: (x, y) => {
+                gl.uniform2fv(
+                    glProgramInfo.uniformLocations.translation,
+                    [x, y]
+                );
+            }
         }
     };
 
@@ -136,29 +181,12 @@ async function start() {
         imports
     );
 
-    setInterval(() => {
-        // set the text area contents
-        let memoryString = "";
-        HEAPU8
-            .subarray(0, 256)
-            .forEach((b, i) => {
-                const nextPiece = (i+1) % 8 == 0
-                    ? `${String(b)}\n`
-                    : `${String(b)}\t`
-
-                memoryString += nextPiece;
-            });
-
-        memoryText.value = memoryString
-    }, 50);
-
     function iter() {
         // TODO, pass time since last iteration
         instance.exports.iter();
 
         window.requestAnimationFrame(iter);
     }
-
     window.requestAnimationFrame(iter);
 }
 
