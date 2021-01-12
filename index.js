@@ -119,10 +119,12 @@ async function start() {
         // Shift by two to find the appropriate 32 bit index
         const startIndex = verticesPtr >> 2;
 
+        const vertices = new Float32Array(memory.buffer, verticesPtr, vertexCount * 2);
+
         // multiplication of 2 is because x and y are interpolated in the vertex array
         gl.bufferData(
             gl.ARRAY_BUFFER,
-            HEAPF32.slice(startIndex, startIndex + vertexCount*2),
+            vertices,
             gl.DYNAMIC_DRAW
         );
 
@@ -159,6 +161,7 @@ async function start() {
     const imports = {
         env: {
             memory,
+            random: Math.random,
             prints: (ptr) => console.log(ptr, toUTF8(ptr)),
             printfl: (f) => console.log(f),
             glClear: (r, g, b, a) => {
@@ -183,10 +186,9 @@ async function start() {
     function iter() {
         // TODO, pass time since last iteration
         instance.exports.iter();
-
-        window.requestAnimationFrame(iter);
     }
-    window.requestAnimationFrame(iter);
+
+    setInterval(() => window.requestAnimationFrame(iter), 300);
 }
 
 window.onload = function() {

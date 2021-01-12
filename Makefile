@@ -2,6 +2,8 @@ build:
 	clang \
 		--target=wasm32 \
 		--no-standard-libraries \
+		-fno-builtin \
+		-fno-exceptions \
 		-Wl,--export-all \
 		-Wl,--no-entry \
 		-Wl,--allow-undefined \

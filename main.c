@@ -4,7 +4,9 @@ void printfl(float num);
 void glClear(float r, float g, float b, float a);
 void drawVertexBuffer(float* vertices, unsigned int vertexCount);
 void setTranslation(float x, float y);
+float random();
 
+// Create a perspective matrix
 // TODO
 void perspective(
         float** result,
@@ -16,33 +18,25 @@ void perspective(
     
 }
 
-int col = 0;
+// Why? The compiler occasionally will optimize large inline arrays
+// by placing them in .data (?), then memcpy-ing them out, or something.
+// There doesn't appear to be any way around this:
+//     https://www.raspberrypi.org/forums/viewtopic.php?t=219687
+char* memcpy(char* dest, const char* src, unsigned int n) {
+    for (int i = 0; i < n; i++) {
+        *(dest+i) = *(src+i);
+    }
 
-int add(int a, int b) {
-    return a + b;
+    return dest;
 }
 
-typedef struct vec3 vec3;
-struct vec3 {
-    unsigned char a;
-    unsigned char b;
-    unsigned char c;
-    unsigned int d;
-};
-
 void iter() {
-    float fcol = (float) col / 255.0f;
-    setTranslation(fcol, fcol);
-
-    float vertices[] = {
-        -0.5f, -0.5f,
-        0.5f, -0.5f,
-        0.5f, 0.5f,
-        -0.5f, 0.5f
+    const float vertices[] = {
+        -1 + 2 * random(), -1 + 2 * random(), -1 + 2 * random(),
+        -1 + 2 * random(), -1 + 2 * random(), -1 + 2 * random(),
+        -1 + 2 * random(), -1 + 2 * random(), -1 + 2 * random(),
+        -1 + 2 * random(), -1 + 2 * random(), -1 + 2 * random(),
     };
 
-    drawVertexBuffer(vertices, 4);
-
-    col += 2;
-    col = col % 255;
+    drawVertexBuffer((float*) vertices, 4);
 }
