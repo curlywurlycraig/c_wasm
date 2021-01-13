@@ -13,6 +13,20 @@ void projection(
     memcpy(result, newResult, sizeof(float) * 9);
 }
 
+void translation(
+        float* result,
+        float x,
+        float y
+) {
+    float newResult[] = {
+        1, 0, 0,
+        0, 1, 0,
+        x, y, 1
+    };
+
+    memcpy(result, newResult, sizeof(float) * 9);
+}
+
 // Create a perspective matrix
 // TODO
 void perspective(

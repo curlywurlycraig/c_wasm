@@ -75,14 +75,12 @@ async function start() {
 
     const vsSource = `
     attribute vec2 aVertexPosition;
-    uniform vec2 uTranslation;
-
-    // uniform mat4 uModelViewMatrix;
+    uniform mat3 uModelViewMatrix;
     // uniform mat4 uProjectionMatrix;
 
     void main() {
         //gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        gl_Position = vec4(aVertexPosition + uTranslation, 0, 1);
+        gl_Position = vec4(uModelViewMatrix * vec3(aVertexPosition, 1), 1);
     }
     `;
 
@@ -103,8 +101,7 @@ async function start() {
             vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition')
         },
         uniformLocations: {
-            translation: gl.getUniformLocation(shaderProgram, 'uTranslation')
-            // modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+            modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
             // projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix')
         },
         buffers: {
@@ -169,10 +166,12 @@ async function start() {
                 gl.clear(gl.COLOR_BUFFER_BIT);
             },
             drawVertexBuffer,
-            setTranslation: (x, y) => {
-                gl.uniform2fv(
-                    glProgramInfo.uniformLocations.translation,
-                    [x, y]
+            setModelViewMatrix: matrixPtr => {
+                const idx = matrixPtr >> 2;
+                gl.uniformMatrix3fv(
+                    glProgramInfo.uniformLocations.modelViewMatrix,
+                    false,
+                    HEAPF32.slice(idx, idx + 9)
                 );
             }
         }

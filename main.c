@@ -7,11 +7,17 @@ void printfl(float num);
 void glClear(float r, float g, float b, float a);
 void drawVertexBuffer(float* vertices, unsigned int vertexCount);
 void setModelViewMatrix(float* matrix);
-void setTranslation(float x, float y);
 float random();
 
 float* vertices = 0;
 static unsigned int MAX_VERTICES = 1000;
+
+static unsigned int FLOAT_SIZE = 4; // 4 byte floats
+
+float* translationMatrix = (float*) 8000;
+
+float xOffset = 0;
+float yOffset = 0;
 
 void iter() {
     const float newVertices[] = {
@@ -24,5 +30,11 @@ void iter() {
 
     memcpy(vertices, newVertices, sizeof(float) * 10);
 
+    translation(translationMatrix, xOffset, yOffset);
+    setModelViewMatrix(translationMatrix);
+
     drawVertexBuffer(vertices, 5);
+
+    yOffset += 0.1;
+    xOffset += 0.1;
 }
