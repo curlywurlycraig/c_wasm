@@ -58,6 +58,8 @@ async function start() {
         return shaderProgram;
     }
 
+    gl.lineWidth(0.1);
+
     // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Adding_2D_content_to_a_WebGL_context
     function loadShader(gl, type, source) {
         const shader = gl.createShader(type);
@@ -74,13 +76,13 @@ async function start() {
     }
 
     const vsSource = `
-    attribute vec2 aVertexPosition;
-    uniform mat3 uModelViewMatrix;
+    attribute vec4 aVertexPosition;
+    uniform mat4 uModelViewMatrix;
     // uniform mat4 uProjectionMatrix;
 
     void main() {
         //gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        gl_Position = vec4(uModelViewMatrix * vec3(aVertexPosition, 1), 1);
+        gl_Position = uModelViewMatrix * aVertexPosition;
     }
     `;
 
@@ -116,7 +118,7 @@ async function start() {
         // Shift by two to find the appropriate 32 bit index
         const startIndex = verticesPtr >> 2;
 
-        const vertices = new Float32Array(memory.buffer, verticesPtr, vertexCount * 2);
+        const vertices = new Float32Array(memory.buffer, verticesPtr, vertexCount * 3);
 
         // multiplication of 2 is because x and y are interpolated in the vertex array
         gl.bufferData(
@@ -132,7 +134,7 @@ async function start() {
 
         // x and y only
         {
-            const size = 2;
+            const size = 3;
             const type = gl.FLOAT;
             const normalize = false;
             const stride = 0;
@@ -149,7 +151,7 @@ async function start() {
         }
 
         {
-            const primitiveType = gl.LINE_LOOP;
+            const primitiveType = gl.LINES;
             const offset = 0;
             gl.drawArrays(primitiveType, offset, vertexCount);
         }
@@ -170,10 +172,10 @@ async function start() {
             drawVertexBuffer,
             setModelViewMatrix: matrixPtr => {
                 const idx = matrixPtr >> 2;
-                gl.uniformMatrix3fv(
+                gl.uniformMatrix4fv(
                     glProgramInfo.uniformLocations.modelViewMatrix,
                     false,
-                    HEAPF32.slice(idx, idx + 9)
+                    HEAPF32.slice(idx, idx + 16)
                 );
             }
         }

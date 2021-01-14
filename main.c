@@ -9,39 +9,45 @@ float sin(float rads);
 float cos(float rads);
 
 #include "mem.c"
-#include "math.c"
+#include "math3.c"
 
 const float CANVAS_WIDTH = 800.0f;
 const float CANVAS_HEIGHT = 600.0f;
 
-float* vertices = 0;
+float* lines = 0;
 static unsigned int MAX_VERTICES = 1000;
 
-// 8000 is 4 (float size) * 2 (two floats per vertex) * 1000 (number of vertices)
-float* modelViewMatrix = (float*) 8000;
+// 8000 is 4 (float size) * 3 (three floats per vertex) * 1000 (number of vertices)
+float* modelViewMatrix = (float*) 12000;
 
-float xOffset = 100;
+float xOffset = 300;
 float yOffset = 100;
+float zOffset = 0;
 
 float time = 0;
 
 void init() {
     identity(modelViewMatrix);
 
-    float projectionMatrix[9];
-    float translationMatrix[9];
-    float originTranslationMatrix[9];
-    float rotationMatrix[9];
-    float scaleMatrix[9];
+    float projectionMatrix[16];
+    float translationMatrix[16];
+    float originTranslationMatrix[16];
+    float rotationYMatrix[16];
+    float rotationXMatrix[16];
+    float rotationZMatrix[16];
+    float scaleMatrix[16];
 
-    xOffset = 200 + sin(time) * 100;
-    float theScale = sin(time);
+    // xOffset = 200 + sin(time) * 100;
+    // float theScale = sin(time) * 0.01;
+    float theScale = 1;
 
-    translation(translationMatrix, xOffset, yOffset);
-    translation(originTranslationMatrix, -50, -50);
-    projection(projectionMatrix, CANVAS_WIDTH, CANVAS_HEIGHT);
-    rotation(rotationMatrix, time);
-    scale(scaleMatrix, theScale, theScale);
+    translation(translationMatrix, xOffset, yOffset, zOffset);
+    translation(originTranslationMatrix, -50, -50, -50);
+    projection(projectionMatrix, CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_WIDTH);
+    rotationz(rotationZMatrix, time * 0.8);
+    rotationx(rotationXMatrix, -time);
+    rotationy(rotationYMatrix, time * -0.5);
+    scale(scaleMatrix, theScale, theScale, theScale);
 
     multiply(
             modelViewMatrix,
@@ -56,17 +62,27 @@ void init() {
     multiply(
             modelViewMatrix,
             modelViewMatrix,
-            rotationMatrix);
+            rotationYMatrix);
 
     multiply(
             modelViewMatrix,
             modelViewMatrix,
-            scaleMatrix);
+            rotationXMatrix);
+
+    multiply(
+            modelViewMatrix,
+            modelViewMatrix,
+            rotationZMatrix);
 
     multiply(
             modelViewMatrix,
             modelViewMatrix,
             originTranslationMatrix);
+
+    multiply(
+            modelViewMatrix,
+            modelViewMatrix,
+            scaleMatrix);
 
     setModelViewMatrix(modelViewMatrix);
 
@@ -76,13 +92,48 @@ void init() {
 void iter() {
     init();
 
-    const float newVertices[] = {
-        10.0f, 10.0f,
-        100.0f, 10.0f,
-        100.0f, 100.0f,
-        10.0f, 100.0f,
+    // a cube
+    const float newLines[] = {
+        // front face
+        10.0f, 10.0f, 10.0f,
+        100.0f, 10.0f, 10.0f,
+
+        100.0f, 10.0f, 10.0f,
+        100.0f, 100.0f, 10.0f,
+
+        100.0f, 100.0f, 10.0f,
+        10.0f, 100.0f, 10.0f,
+
+        10.0f, 100.0f, 10.0f,
+        10.0f, 10.0f, 10.0f,
+
+        // back face
+        10.0f, 10.0f, 100.0f,
+        100.0f, 10.0f, 100.0f,
+
+        100.0f, 10.0f, 100.0f,
+        100.0f, 100.0f, 100.0f,
+
+        100.0f, 100.0f, 100.0f,
+        10.0f, 100.0f, 100.0f,
+
+        10.0f, 100.0f, 100.0f,
+        10.0f, 10.0f, 100.0f,
+
+        // connections between front and back
+        10.0f, 10.0f, 10.0f,
+        10.0f, 10.0f, 100.0f,
+
+        100.0f, 10.0f, 10.0f,
+        100.0f, 10.0f, 100.0f,
+
+        10.0f, 100.0f, 10.0f,
+        10.0f, 100.0f, 100.0f,
+
+        100.0f, 100.0f, 10.0f,
+        100.0f, 100.0f, 100.0f,
     };
 
-    memcpy(vertices, newVertices, sizeof(float) * 8);
-    drawVertexBuffer(vertices, 4);
+    memcpy(lines, newLines, sizeof(float) * 72);
+    drawVertexBuffer(lines, 24);
 }
