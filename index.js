@@ -159,6 +159,8 @@ async function start() {
         env: {
             memory,
             random: Math.random,
+            cos: Math.cos,
+            sin: Math.sin,
             prints: (ptr) => console.log(ptr, toUTF8(ptr)),
             printfl: (f) => console.log(f),
             glClear: (r, g, b, a) => {
@@ -185,9 +187,13 @@ async function start() {
     function iter() {
         // TODO, pass time since last iteration
         instance.exports.iter();
+
+        window.requestAnimationFrame(iter);
     }
 
-    setInterval(() => window.requestAnimationFrame(iter), 300);
+    instance.exports.init();
+
+    window.requestAnimationFrame(iter);
 }
 
 window.onload = function() {
