@@ -43,6 +43,20 @@ void identity(float* result) {
     memcpy(result, newResult, sizeof(float) * 9);
 }
 
+void scale(
+    float* result,
+    float sx,
+    float sy
+) {
+    float newResult[] = {
+        sx, 0, 0,
+        0, sy, 0,
+        0, 0, 1
+    };
+
+    memcpy(result, newResult, sizeof(float) * 9);
+}
+
 void rotation(
     float* result,
     float rads

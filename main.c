@@ -32,12 +32,16 @@ void init() {
     float translationMatrix[9];
     float originTranslationMatrix[9];
     float rotationMatrix[9];
+    float scaleMatrix[9];
 
     xOffset = 200 + sin(time) * 100;
+    float theScale = sin(time);
+
     translation(translationMatrix, xOffset, yOffset);
     translation(originTranslationMatrix, -50, -50);
     projection(projectionMatrix, CANVAS_WIDTH, CANVAS_HEIGHT);
     rotation(rotationMatrix, time);
+    scale(scaleMatrix, theScale, theScale);
 
     multiply(
             modelViewMatrix,
@@ -57,11 +61,16 @@ void init() {
     multiply(
             modelViewMatrix,
             modelViewMatrix,
+            scaleMatrix);
+
+    multiply(
+            modelViewMatrix,
+            modelViewMatrix,
             originTranslationMatrix);
 
     setModelViewMatrix(modelViewMatrix);
 
-    time += 0.01;
+    time += 0.02;
 }
 
 void iter() {
