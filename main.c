@@ -32,6 +32,8 @@ void init() {
     float translationMatrix[9];
     float originTranslationMatrix[9];
     float rotationMatrix[9];
+
+    xOffset = 200 + sin(time) * 100;
     translation(translationMatrix, xOffset, yOffset);
     translation(originTranslationMatrix, -50, -50);
     projection(projectionMatrix, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -56,7 +58,6 @@ void init() {
             modelViewMatrix,
             modelViewMatrix,
             originTranslationMatrix);
-
 
     setModelViewMatrix(modelViewMatrix);
 
