@@ -88,7 +88,9 @@ async function start() {
 
     void main() {
         //gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        gl_Position = uModelViewMatrix * aVertexPosition;
+        vec4 position = uModelViewMatrix * aVertexPosition;
+        float perspectiveIntensity = (position.z + 1.0) * 1.0;
+        gl_Position = vec4(position.xyz, perspectiveIntensity);
     }
     `;
 

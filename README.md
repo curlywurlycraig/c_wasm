@@ -1,6 +1,7 @@
 This is a basic project template for writing C code that builds to WASM.
 
-It is a good starting point for a C WASM project without all the extras that come with Emscripten.
+It is a good starting point for a C WASM project without all the extras that
+come with Emscripten.
 
 # Why C?
 
@@ -35,4 +36,5 @@ binary on your path.
 
 # Running
 
-Serve using something like Miniserve (`miniserve .`)
+Serve using something like Miniserve (`miniserve --index index.html .`)
+

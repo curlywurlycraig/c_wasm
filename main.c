@@ -20,8 +20,8 @@ static unsigned int MAX_VERTICES = 1000;
 // 8000 is 4 (float size) * 3 (three floats per vertex) * 1000 (number of vertices)
 float* modelViewMatrix = (float*) 12000;
 
-float xOffset = 300;
-float yOffset = 100;
+float xOffset = 400;
+float yOffset = 200;
 float zOffset = 0;
 
 float time = 0;
@@ -41,8 +41,8 @@ void init() {
     // float theScale = sin(time) * 0.01;
     float theScale = 1;
 
-    translation(translationMatrix, xOffset, yOffset, zOffset);
-    translation(originTranslationMatrix, -50, -50, -50);
+    translation(translationMatrix, xOffset + sin(time) * 100, yOffset, zOffset);
+    translation(originTranslationMatrix, -55, -55, -50);
     projection(projectionMatrix, CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_WIDTH);
     rotationz(rotationZMatrix, time * 0.8);
     rotationx(rotationXMatrix, -time);
