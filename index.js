@@ -8,11 +8,15 @@
 async function start() {
     // init webgl
     const canvas = document.querySelector("#canvas");
-    const memoryText = document.querySelector("#memory");
+    const errorText = document.querySelector("#errors");
+
+    function logError(error) {
+        errorText.innerHTML = error;
+    }
 
     const gl = canvas.getContext("webgl");
     if (gl === null){
-        console.error("Failed to init webgl.");
+        logError("Failed to init webgl.");
     }
 
     const memory = new WebAssembly.Memory({
@@ -50,8 +54,10 @@ async function start() {
         gl.linkProgram(shaderProgram);
 
         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-            // TODO Instead of console err, use a little debug textarea
-            console.error('Unable to initialize the shader program: ', gl.getProgramInfoLog(shaderProgram));
+            logError(
+                'Unable to initialize the shader program: ',
+                gl.getProgramInfoLog(shaderProgram)
+            );
             return null;
         }
 
@@ -67,7 +73,7 @@ async function start() {
         gl.compileShader(shader);
 
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+            logError('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
             gl.deleteShader(shader);
             return null;
         }
@@ -181,21 +187,25 @@ async function start() {
         }
     };
 
-    const { instance } = await WebAssembly.instantiateStreaming(
-        fetch('main.wasm'),
-        imports
-    );
+    try {
+        const { instance } = await WebAssembly.instantiateStreaming(
+            fetch('main.wasm'),
+            imports
+        );
 
-    function iter() {
-        // TODO, pass time since last iteration
-        instance.exports.iter();
+        function iter() {
+            // TODO, pass time since last iteration
+            instance.exports.iter();
+
+            window.requestAnimationFrame(iter);
+        }
+
+        instance.exports.init();
 
         window.requestAnimationFrame(iter);
+    } catch (e) {
+        logError('I am sorry my good friend. Your browser does not appear to support wasm');
     }
-
-    instance.exports.init();
-
-    window.requestAnimationFrame(iter);
 }
 
 window.onload = function() {
