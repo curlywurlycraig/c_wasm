@@ -187,25 +187,24 @@ async function start() {
         }
     };
 
-    try {
-        const { instance } = await WebAssembly.instantiateStreaming(
-            fetch('main.wasm'),
-            imports
-        );
+    // instantiateStreaming is not supported by mobile safari
+    const wasmResponse = await fetch('main.wasm');
+    const wasmArray = await wasmResponse.arrayBuffer();
+    const { instance } = await WebAssembly.instantiate(
+        wasmArray,
+        imports
+    );
 
-        function iter() {
-            // TODO, pass time since last iteration
-            instance.exports.iter();
-
-            window.requestAnimationFrame(iter);
-        }
-
-        instance.exports.init();
+    function iter() {
+        // TODO, pass time since last iteration
+        instance.exports.iter();
 
         window.requestAnimationFrame(iter);
-    } catch (e) {
-        logError('I am sorry my good friend. Your browser does not appear to support wasm');
     }
+
+    instance.exports.init();
+
+    window.requestAnimationFrame(iter);
 }
 
 window.onload = function() {
