@@ -7,6 +7,7 @@ void setModelViewMatrix(float* matrix);
 float random();
 float sin(float rads);
 float cos(float rads);
+float tan(float rads);
 
 #include "mem.c"
 #include "math3.c"
@@ -20,16 +21,16 @@ static unsigned int MAX_VERTICES = 1000;
 // 8000 is 4 (float size) * 3 (three floats per vertex) * 1000 (number of vertices)
 float* modelViewMatrix = (float*) 12000;
 
-float xOffset = 400;
-float yOffset = 200;
-float zOffset = 0;
+float xOffset = 0;
+float yOffset = 0;
+float zOffset = -200;
 
 float time = 0;
 
 void init() {
     identity(modelViewMatrix);
 
-    float projectionMatrix[16];
+    float perspectiveMatrix[16];
     float translationMatrix[16];
     float originTranslationMatrix[16];
     float rotationYMatrix[16];
@@ -37,13 +38,17 @@ void init() {
     float rotationZMatrix[16];
     float scaleMatrix[16];
 
-    // xOffset = 200 + sin(time) * 100;
-    // float theScale = sin(time) * 0.01;
+    //float theScale = sin(time) * 0.01;
     float theScale = 1;
 
-    translation(translationMatrix, xOffset + sin(time) * 100, yOffset, zOffset);
-    translation(originTranslationMatrix, -55, -55, -50);
-    projection(projectionMatrix, CANVAS_WIDTH, CANVAS_HEIGHT, CANVAS_WIDTH);
+    float fovRad = (87.0f / 360.0f) * PI * 2;
+    float aspect = CANVAS_WIDTH / CANVAS_HEIGHT;
+    float near = 1;
+    float far = 2000;
+
+    translation(translationMatrix, xOffset, yOffset, zOffset);
+    translation(originTranslationMatrix, -55, -55, -55);
+    perspective(perspectiveMatrix, fovRad, aspect, near, far);
     rotationz(rotationZMatrix, time * 0.8);
     rotationx(rotationXMatrix, -time);
     rotationy(rotationYMatrix, time * -0.5);
@@ -52,7 +57,7 @@ void init() {
     multiply(
             modelViewMatrix,
             modelViewMatrix,
-            projectionMatrix);
+            perspectiveMatrix);
 
     multiply(
             modelViewMatrix,

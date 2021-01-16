@@ -88,9 +88,7 @@ async function start() {
 
     void main() {
         //gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        vec4 position = uModelViewMatrix * aVertexPosition;
-        float perspectiveIntensity = (position.z + 1.0) * 1.0;
-        gl_Position = vec4(position.xyz, perspectiveIntensity);
+        gl_Position = uModelViewMatrix * aVertexPosition;
     }
     `;
 
@@ -171,6 +169,7 @@ async function start() {
             random: Math.random,
             cos: Math.cos,
             sin: Math.sin,
+            tan: Math.tan,
             prints: (ptr) => console.log(ptr, toUTF8(ptr)),
             printfl: (f) => console.log(f),
             glClear: (r, g, b, a) => {

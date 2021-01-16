@@ -1,3 +1,5 @@
+static float PI = 3.14159f;
+
 // A lot of this code came from the guidance at
 // https://webglfundamentals.org/webgl/lessons/webgl-3d-orthographic.html
 
@@ -132,18 +134,21 @@ void rotationz(
     memcpy(result, newResult, sizeof(float) * 16);
 }
 
-// Converts from clip space (-1 to 1) to pixel space
-void projection(
+// https://webglfundamentals.org/webgl/lessons/webgl-3d-perspective.html
+void perspective(
         float* result,
-        float width,
-        float height,
-        float depth
+        float fovRad,
+        float aspect,
+        float near,
+        float far
 ) {
+    float f = tan(PI * 0.5f - 0.5f * fovRad);
+    float rangeInv = 1.0f / (near - far);
     float newResult[] = {
-        2 / width, 0, 0, 0,
-        0, -2 / height, 0, 0,
-        0, 0, 2 / depth, 0,
-        -1, 1, 0, 1
+        f / aspect, 0, 0, 0,
+        0, f, 0, 0,
+        0, 0, (near + far) * rangeInv, -1,
+        0, 0, near * far * rangeInv * 2, 0
     };
 
     memcpy(result, newResult, sizeof(float) * 16);
@@ -163,17 +168,5 @@ void translation(
     };
 
     memcpy(result, newResult, sizeof(float) * 16);
-}
-
-// Create a perspective matrix
-// TODO
-void perspective(
-        float** result,
-        float fieldOfView,
-        float aspect,
-        float zNear,
-        float zFar
-) {
-    
 }
 
