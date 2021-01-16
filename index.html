@@ -15,23 +15,16 @@ body {
     max-width: 600px;
 }
 
-#memory {
-    font-family: monospace;
-    background-color: #111;
-    color: red;
-    height: 100%;
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-left: 1px solid red;
-    margin: 10px 0;
+p {
+    font-family: courier, monospace;
+    color: #ddf;
 }
     </style>
   </head>
   <body>
     <canvas width="800px" height="600px" id="canvas"></canvas>
 
-    <p id="errors"></p>
+    <p>Using C (compiled to WASM) to interact with WebGL without Emscripten.</p>
 
     <script type="module" src="index.js">
     </script>

@@ -27,6 +27,13 @@ float zOffset = -200;
 
 float time = 0;
 
+float cursorX = 400.0f;
+float cursorY = 300.0f;
+void setCursorPosition(float x, float y) {
+    cursorX = x;
+    cursorY = y;
+}
+
 void init() {
     identity(modelViewMatrix);
 
@@ -49,9 +56,9 @@ void init() {
     translation(translationMatrix, xOffset, yOffset, zOffset);
     translation(originTranslationMatrix, -55, -55, -55);
     perspective(perspectiveMatrix, fovRad, aspect, near, far);
-    rotationz(rotationZMatrix, time * 0.8);
-    rotationx(rotationXMatrix, -time);
-    rotationy(rotationYMatrix, time * -0.5);
+    rotationz(rotationZMatrix, 0);
+    rotationx(rotationXMatrix, cursorY * 0.01f);
+    rotationy(rotationYMatrix, cursorX * 0.01f);
     scale(scaleMatrix, theScale, theScale, theScale);
 
     multiply(
@@ -67,12 +74,12 @@ void init() {
     multiply(
             modelViewMatrix,
             modelViewMatrix,
-            rotationYMatrix);
+            rotationXMatrix);
 
     multiply(
             modelViewMatrix,
             modelViewMatrix,
-            rotationXMatrix);
+            rotationYMatrix);
 
     multiply(
             modelViewMatrix,

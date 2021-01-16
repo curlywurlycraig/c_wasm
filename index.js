@@ -196,6 +196,10 @@ async function start() {
         imports
     );
 
+    window.onmousemove = function(e) {
+        instance.exports.setCursorPosition(e.offsetX, e.offsetY);
+    }
+
     function iter() {
         // TODO, pass time since last iteration
         instance.exports.iter();
