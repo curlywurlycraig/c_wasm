@@ -197,7 +197,7 @@ async function start() {
     );
 
     window.onmousemove = function(e) {
-        instance.exports.setCursorPosition(e.offsetX, e.offsetY);
+        instance.exports.setCursorPosition(e.clientX, e.clientY);
     }
 
     function iter() {

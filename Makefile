@@ -5,6 +5,7 @@ build:
 		-O3 \
 		-fno-builtin \
 		-fno-exceptions \
+		-Wall \
 		-Wl,--export-all \
 		-Wl,--no-entry \
 		-Wl,--allow-undefined \
